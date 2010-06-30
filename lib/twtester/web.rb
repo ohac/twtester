@@ -1,26 +1,33 @@
 require 'sinatra/base'
 require 'json'
 
+$timeline = []
+
 module TwTester
   class Web < Sinatra::Base
+    enable :sessions
+
+    before do
+      auth = Rack::Auth::Basic::Request.new(request.env)
+      session[:user], session[:pass] = auth.credentials
+    end
+
     get '/1/statuses/home_timeline.json' do
-      timeline = [
-        {
-          'text' => 'hello',
-          'in_reply_to_status_id' => 1234,
-          'user' => {
-            'screen_name' => 'someone',
-            'verified' => true,
-            'protected' => true,
-          },
-        }
-      ]
-      timeline.to_json
+      $timeline.reverse.to_json
     end
 
     post '/1/statuses/update.json' do
       status = params['status']
-      p status
+      digest = Digest::MD5.hexdigest(session[:pass])
+      $timeline << {
+        'text' => status,
+        'user' => {
+          'name' => digest,
+          'screen_name' => session[:user],
+          'profile_image_url' => "http://www.gravatar.com/avatar/#{digest}?s=48&default=identicon",
+        },
+      }
+      $timeline.shift if $timeline.size > 20
       response = [
       ]
       response.to_json

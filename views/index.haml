@@ -1,0 +1,9 @@
+%html
+  %head
+    %title twtester
+  %body
+    %a{:href => '/1/statuses/home_timeline.json'} Home
+    %br
+    %form{:method => 'post', :action => '/1/statuses/update.json'}
+      %input{:type => 'text', :name => 'status'}
+      %input{:type => 'submit'}

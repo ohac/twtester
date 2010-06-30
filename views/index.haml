@@ -1,7 +1,9 @@
 %html
   %head
     %title twtester
+    %link{:rel => "alternate", :href => "/rss.xml", :title => "Recent Tweets", :type => "application/rss+xml"}
   %body
+    %a{:href => "/rss.xml", :rel => "alternate", :type => "application/rss+xml"} RSS feed
     %form{:method => 'post', :action => '/1/statuses/update.json'}
       %textarea{:name => 'status', :rows => 2, :cols => 40}
       %br

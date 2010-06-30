@@ -46,6 +46,11 @@ module TwTester
       haml :index, :locals => { :timeline => $timeline }
     end
 
+    get '/rss.xml' do
+      haml :rss, :locals => {  :timeline => $timeline,
+          :baseurl => 'http://localhost:4567' }
+    end
+
     get '/1/statuses/home_timeline.json' do
       $timeline.reverse.to_json
     end

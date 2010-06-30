@@ -17,6 +17,30 @@ module TwTester
 
     helpers do
       include Rack::Utils; alias_method :h, :escape_html
+
+      def post_tweet(text, session)
+        digest = Digest::MD5.hexdigest(session[:pass])
+        now = Time.now
+        tid = now.to_i * 1000 + now.usec / 1000
+        tweet = {
+          'text' => text,
+          'created_at' => now.to_s,
+          'id' => tid,
+          'user' => {
+            'name' => digest,
+            'screen_name' => session[:user],
+            'profile_image_url' => "http://www.gravatar.com/avatar/#{digest}?s=48&default=identicon",
+          },
+        }
+        $timeline << tweet
+        $timeline.shift if $timeline.size > 20
+        File.open("tweets/#{tid}.bin", 'wb') do |fd|
+          fd.write(Marshal.dump(tweet))
+        end
+        File.open('timeline.bin', 'wb') do |fd|
+          fd.write(Marshal.dump($timeline))
+        end
+      end
     end
 
     CONTENT_TYPES = {
@@ -55,6 +79,11 @@ module TwTester
       haml :tweet, :locals => { :tid => tid, :tweet => tweet }
     end
 
+    post '/update' do
+      post_tweet(params['status'], session)
+      redirect '/'
+    end
+
     get '/rss.xml' do
       haml :rss, :locals => {  :timeline => $timeline,
           :baseurl => 'http://localhost:4567' }
@@ -65,28 +94,7 @@ module TwTester
     end
 
     post '/1/statuses/update.json' do
-      status = params['status']
-      digest = Digest::MD5.hexdigest(session[:pass])
-      now = Time.now
-      tid = now.to_i * 1000 + now.usec / 1000
-      tweet = {
-        'text' => status,
-        'created_at' => now.to_s,
-        'id' => tid,
-        'user' => {
-          'name' => digest,
-          'screen_name' => session[:user],
-          'profile_image_url' => "http://www.gravatar.com/avatar/#{digest}?s=48&default=identicon",
-        },
-      }
-      $timeline << tweet
-      $timeline.shift if $timeline.size > 20
-      File.open("tweets/#{tid}.bin", 'wb') do |fd|
-        fd.write(Marshal.dump(tweet))
-      end
-      File.open('timeline.bin', 'wb') do |fd|
-        fd.write(Marshal.dump($timeline))
-      end
+      post_tweet(params['status'], session)
       response = [
       ]
       response.to_json

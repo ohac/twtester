@@ -9,6 +9,6 @@
     - timeline.reverse.each do |tweet|
       - user = tweet['user']
       %img{:src => user['profile_image_url']}
-      = user['screen_name']
-      = tweet['text']
+      = h user['screen_name']
+      = h tweet['text']
       %br

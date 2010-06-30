@@ -8,6 +8,10 @@ module TwTester
   class Web < Sinatra::Base
     enable :sessions
 
+    helpers do
+      include Rack::Utils; alias_method :h, :escape_html
+    end
+
     CONTENT_TYPES = {
       :html => 'text/html',
       :css => 'text/css',

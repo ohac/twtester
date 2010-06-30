@@ -106,7 +106,7 @@ module TwTester
         account = { :user => "anonym_#{digest[0,4]}", :pass => pass }
       end
       text = params['status']
-      text = text.split(//u)[0, 140]
+      text = text.split(//u)[0, 140].join
       post_tweet(text, account)
       redirect '/'
     end
@@ -127,7 +127,9 @@ module TwTester
 
     post '/1/statuses/update.json' do
       protected!
-      post_tweet(params['status'], session)
+      text = params['status']
+      text = text.split(//u)[0, 140].join
+      post_tweet(text, session)
       response = [
       ]
       response.to_json

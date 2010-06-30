@@ -7,11 +7,12 @@
     %language en
     - timeline.reverse.each do |tweet|
       - user = tweet['user']
+      - screen_name = h(user['screen_name'])
       %item
-        - date = Time.now # TODO
-        %pubDate= date.strftime('%a, %d %b %Y %H:%M:%S %z')
-        - url = "#{baseurl}" # TODO permalink
+        - date = tweet['created_at'] || Time.at(0).to_s
+        %pubDate= Time.parse(date).strftime('%a, %d %b %Y %H:%M:%S %z')
+        - url = "#{baseurl}/#{screen_name}/status/#{tweet['id']}"
         %guid{:isPermaLink => true}= url
         %link= url
-        %title= h user['screen_name']
+        %title= screen_name
         %description= h tweet['text']

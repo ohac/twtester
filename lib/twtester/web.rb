@@ -58,8 +58,11 @@ module TwTester
     post '/1/statuses/update.json' do
       status = params['status']
       digest = Digest::MD5.hexdigest(session[:pass])
+      now = Time.now
       $timeline << {
         'text' => status,
+        'created_at' => now.to_s,
+        'id' => now.to_i * 1000 + now.usec / 1000,
         'user' => {
           'name' => digest,
           'screen_name' => session[:user],

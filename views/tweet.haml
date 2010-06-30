@@ -1,0 +1,11 @@
+%html
+  %head
+    %title== #{tid} - twtester
+  %body
+    - user = tweet['user']
+    - screen_name = h(user['screen_name'])
+    %img{:src => user['profile_image_url']}
+    = screen_name
+    = h tweet['text']
+    %br
+    %a{:href => "/#{screen_name}/status/#{tweet['id']}"}= tweet['created_at']

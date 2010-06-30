@@ -1,6 +1,7 @@
 require 'sinatra/base'
 require 'json'
 require 'haml'
+require 'fileutils'
 
 $timeline = []
 if File.exist?('timeline.bin')
@@ -8,6 +9,7 @@ if File.exist?('timeline.bin')
     $timeline = Marshal.load(fd.read)
   end
 end
+FileUtils.mkdir_p('tweets')
 
 module TwTester
   class Web < Sinatra::Base
@@ -46,6 +48,13 @@ module TwTester
       haml :index, :locals => { :timeline => $timeline }
     end
 
+    get '/:screen_name/status/:tid' do |screen_name, tid|
+      tweet = File.open("tweets/#{tid}.bin", 'rb') do |fd|
+        Marshal.load(fd.read)
+      end
+      haml :tweet, :locals => { :tid => tid, :tweet => tweet }
+    end
+
     get '/rss.xml' do
       haml :rss, :locals => {  :timeline => $timeline,
           :baseurl => 'http://localhost:4567' }
@@ -59,17 +68,22 @@ module TwTester
       status = params['status']
       digest = Digest::MD5.hexdigest(session[:pass])
       now = Time.now
-      $timeline << {
+      tid = now.to_i * 1000 + now.usec / 1000
+      tweet = {
         'text' => status,
         'created_at' => now.to_s,
-        'id' => now.to_i * 1000 + now.usec / 1000,
+        'id' => tid,
         'user' => {
           'name' => digest,
           'screen_name' => session[:user],
           'profile_image_url' => "http://www.gravatar.com/avatar/#{digest}?s=48&default=identicon",
         },
       }
+      $timeline << tweet
       $timeline.shift if $timeline.size > 20
+      File.open("tweets/#{tid}.bin", 'wb') do |fd|
+        fd.write(Marshal.dump(tweet))
+      end
       File.open('timeline.bin', 'wb') do |fd|
         fd.write(Marshal.dump($timeline))
       end

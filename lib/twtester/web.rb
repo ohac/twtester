@@ -63,7 +63,6 @@ module TwTester
     }
 
     before do
-      session[:user], session[:pass] = @auth.credentials if @auth
       request_uri =
           case request.env['REQUEST_URI']
           when /\.css$/ ; :css
@@ -122,11 +121,13 @@ module TwTester
 
     get '/1/statuses/home_timeline.json' do
       protected!
+      session[:user], session[:pass] = @auth.credentials if @auth
       $timeline.reverse.to_json
     end
 
     post '/1/statuses/update.json' do
       protected!
+      session[:user], session[:pass] = @auth.credentials if @auth
       text = params['status']
       text = text.split(//u)[0, 140].join
       post_tweet(text, session)
@@ -137,6 +138,7 @@ module TwTester
 
     get '/1/account/rate_limit_status.json' do
       protected!
+      session[:user], session[:pass] = @auth.credentials if @auth
       {'remaining_hits' => 150}.to_json
     end
   end

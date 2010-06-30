@@ -1,5 +1,6 @@
 require 'sinatra/base'
 require 'json'
+require 'haml'
 
 $timeline = []
 
@@ -7,9 +8,17 @@ module TwTester
   class Web < Sinatra::Base
     enable :sessions
 
+    use Rack::Auth::Basic do |username, password|
+      true
+    end
+
     before do
       auth = Rack::Auth::Basic::Request.new(request.env)
-      session[:user], session[:pass] = auth.credentials
+      session[:user], session[:pass] = auth.credentials if auth
+    end
+
+    get '/' do
+      haml :index
     end
 
     get '/1/statuses/home_timeline.json' do

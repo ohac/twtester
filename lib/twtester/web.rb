@@ -18,8 +18,20 @@ module TwTester
     helpers do
       include Rack::Utils; alias_method :h, :escape_html
 
-      def post_tweet(text, session)
-        digest = Digest::MD5.hexdigest(session[:pass])
+      def protected!
+        unless authorized?
+          response['WWW-Authenticate'] = %(Basic realm="TwTester HTTP Auth")
+          throw(:halt, [401, "Not authorized\n"])
+        end
+      end
+
+      def authorized?
+        @auth ||= Rack::Auth::Basic::Request.new(request.env)
+        @auth.provided? && @auth.basic? && @auth.credentials
+      end
+
+      def post_tweet(text, account)
+        digest = Digest::MD5.hexdigest(account[:pass])
         now = Time.now
         tid = now.to_i * 1000 + now.usec / 1000
         tweet = {
@@ -28,7 +40,7 @@ module TwTester
           'id' => tid,
           'user' => {
             'name' => digest,
-            'screen_name' => session[:user],
+            'screen_name' => account[:user],
             'profile_image_url' => "http://www.gravatar.com/avatar/#{digest}?s=48&default=identicon",
           },
         }
@@ -50,13 +62,8 @@ module TwTester
       :txt => 'text/plain',
     }
 
-    use Rack::Auth::Basic do |username, password|
-      true
-    end
-
     before do
-      auth = Rack::Auth::Basic::Request.new(request.env)
-      session[:user], session[:pass] = auth.credentials if auth
+      session[:user], session[:pass] = @auth.credentials if @auth
       request_uri =
           case request.env['REQUEST_URI']
           when /\.css$/ ; :css
@@ -69,7 +76,19 @@ module TwTester
     end
 
     get '/' do
-      haml :index, :locals => { :timeline => $timeline }
+      haml :index, :locals => { :timeline => $timeline, :user => session[:user] }
+    end
+
+    post '/login' do
+      session[:user] = params['user']
+      session[:pass] = params['pass']
+      redirect '/'
+    end
+
+    get '/logout' do
+      session[:user] = nil
+      session[:pass] = nil
+      redirect '/'
     end
 
     get '/:screen_name/status/:tid' do |screen_name, tid|
@@ -80,7 +99,13 @@ module TwTester
     end
 
     post '/update' do
-      post_tweet(params['status'], session)
+      account = session
+      unless account[:user]
+        pass = request.env['REMOTE_ADDR']
+        digest = Digest::MD5.hexdigest(pass)
+        account = { :user => "anonym_#{digest[0,4]}", :pass => pass }
+      end
+      post_tweet(params['status'], account)
       redirect '/'
     end
 
@@ -89,11 +114,17 @@ module TwTester
           :baseurl => 'http://localhost:4567' }
     end
 
+    get '/1/statuses/public_timeline.json' do
+      $timeline.reverse.to_json
+    end
+
     get '/1/statuses/home_timeline.json' do
+      protected!
       $timeline.reverse.to_json
     end
 
     post '/1/statuses/update.json' do
+      protected!
       post_tweet(params['status'], session)
       response = [
       ]
@@ -101,6 +132,7 @@ module TwTester
     end
 
     get '/1/account/rate_limit_status.json' do
+      protected!
       {'remaining_hits' => 150}.to_json
     end
   end

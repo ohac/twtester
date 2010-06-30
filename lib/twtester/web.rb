@@ -105,7 +105,9 @@ module TwTester
         digest = Digest::MD5.hexdigest(pass)
         account = { :user => "anonym_#{digest[0,4]}", :pass => pass }
       end
-      post_tweet(params['status'], account)
+      text = params['status']
+      text = text.split(//u)[0, 140]
+      post_tweet(text, account)
       redirect '/'
     end
 

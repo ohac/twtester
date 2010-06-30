@@ -8,6 +8,13 @@ module TwTester
   class Web < Sinatra::Base
     enable :sessions
 
+    CONTENT_TYPES = {
+      :html => 'text/html',
+      :css => 'text/css',
+      :js => 'application/javascript',
+      :txt => 'text/plain',
+    }
+
     use Rack::Auth::Basic do |username, password|
       true
     end
@@ -15,10 +22,19 @@ module TwTester
     before do
       auth = Rack::Auth::Basic::Request.new(request.env)
       session[:user], session[:pass] = auth.credentials if auth
+      request_uri =
+          case request.env['REQUEST_URI']
+          when /\.css$/ ; :css
+          when /\.js$/ ; :js
+          when /\.txt$/ ; :txt
+          else :html
+          end
+      content_type CONTENT_TYPES[request_uri], :charset => 'utf-8'
+      response.headers['Cache-Control'] = 'no-cache'
     end
 
     get '/' do
-      haml :index
+      haml :index, :locals => { :timeline => $timeline }
     end
 
     get '/1/statuses/home_timeline.json' do

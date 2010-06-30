@@ -3,6 +3,11 @@ require 'json'
 require 'haml'
 
 $timeline = []
+if File.exist?('timeline.bin')
+  File.open('timeline.bin', 'rb') do |fd|
+    $timeline = Marshal.load(fd.read)
+  end
+end
 
 module TwTester
   class Web < Sinatra::Base
@@ -57,6 +62,9 @@ module TwTester
         },
       }
       $timeline.shift if $timeline.size > 20
+      File.open('timeline.bin', 'wb') do |fd|
+        fd.write(Marshal.dump($timeline))
+      end
       response = [
       ]
       response.to_json

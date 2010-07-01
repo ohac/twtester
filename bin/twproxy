@@ -1,0 +1,45 @@
+#!/usr/bin/env ruby
+require 'webrick'
+require 'webrick/httpproxy'
+require 'uri'
+
+class WEBrick::HTTPRequest
+  def host=(v)
+    @host = v
+  end
+  def port=(v)
+    @port = v
+  end
+  def unparsed_uri=(v)
+    @unparsed_uri = v
+  end
+  def request_line=(v)
+    @request_line = v
+  end
+  def request_uri=(v)
+    @request_uri = v
+  end
+end
+
+class MyProxyServer < WEBrick::HTTPProxyServer
+  def service(req, res)
+    if req.host == 'twitter.com'
+      req.host = 'localhost'
+      req.port = 4567
+      req.unparsed_uri = req.unparsed_uri.sub(/twitter.com/, req.host)
+      req.request_line = req.request_line.sub(/twitter.com/, req.host)
+      req.request_uri = URI.parse(req.unparsed_uri)
+    end
+    super(req, res)
+  end
+end
+
+s = MyProxyServer.new(
+  :Port => 8888,
+)
+
+Signal.trap('INT') do
+  s.shutdown
+end
+
+s.start

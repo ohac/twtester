@@ -52,6 +52,7 @@ module TwTester
         File.open('timeline.bin', 'wb') do |fd|
           fd.write(Marshal.dump($timeline))
         end
+        tweet
       end
     end
 
@@ -130,9 +131,7 @@ module TwTester
       session[:user], session[:pass] = @auth.credentials if @auth
       text = params['status']
       text = text.split(//u)[0, 140].join
-      post_tweet(text, session)
-      response = [
-      ]
+      response = post_tweet(text, session)
       response.to_json
     end
 

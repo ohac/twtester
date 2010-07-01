@@ -153,5 +153,14 @@ module TwTester
       session[:user], session[:pass] = @auth.credentials if @auth
       {'remaining_hits' => 150}.to_json
     end
+
+    get '/1/:screen_name/lists.json' do |screen_name|
+      response = {
+        'lists' => [],
+        'next_cursor' => 0,
+        'previous_cursor' => 0,
+      }
+      response.to_json
+    end
   end
 end

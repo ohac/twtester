@@ -136,6 +136,18 @@ module TwTester
       response.to_json
     end
 
+    get '/1/account/verify_credentials.json' do
+      protected!
+      session[:user], session[:pass] = @auth.credentials if @auth
+      response = {
+        'user' => {
+          'name' => session[:user],
+          'screen_name' => session[:user],
+        }
+      }
+      response.to_json
+    end
+
     get '/1/account/rate_limit_status.json' do
       protected!
       session[:user], session[:pass] = @auth.credentials if @auth

@@ -122,8 +122,10 @@ module TwTester
 
     get '/1/statuses/home_timeline.json' do
       protected!
+      since = (params['since_id'] || '0').to_i
+      since
       session[:user], session[:pass] = @auth.credentials if @auth
-      $timeline.reverse.to_json
+      $timeline.select{|t|t['id'] > since}.reverse.to_json
     end
 
     post '/1/statuses/update.json' do

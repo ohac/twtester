@@ -1,0 +1,42 @@
+!!! XML
+%statuses
+  - tweets.each do |tw|
+    %status
+      %created_at= tw['created_at']
+      %id= tw['id']
+      %text= h tw['text']
+      %source web
+      %truncated false
+      %in_reply_to_status_id
+      %in_reply_to_user_id
+      %favorited false
+      %in_reply_to_screen_name
+      %retweeted_status
+      %geo
+      %user
+        %name= tw['user']['screen_name']
+        %screen_name= tw['user']['screen_name']
+        %profile_image_url= h tw['user']['profile_image_url']
+        %id 44940026
+        %location
+        %description
+        %url
+        %protected false
+        %followers_count 0
+        %profile_background_color 9ae4e8
+        %profile_text_color 000000
+        %profile_link_color 0000ff
+        %profile_sidebar_fill_color e0ff92
+        %profile_sidebar_border_color 87bc44
+        %friends_count 0
+        %created_at Fri Jun 05 17:07:09 +0000 2009
+        %favourites_count 0
+        %utc_offset -28800
+        %time_zone Pacific Time (US &amp; Canada)
+        %profile_background_image_url http://s.twimg.com/a/1258507899/images/themes/theme1/bg.png
+        %profile_background_tile false
+        %statuses_count 1
+        %notifications false
+        %geo_enabled false
+        %verified false
+        %following true

@@ -62,6 +62,7 @@ module TwTester
 
     CONTENT_TYPES = {
       :html => 'text/html',
+      :xml => 'text/xml',
       :css => 'text/css',
       :js => 'application/javascript',
       :txt => 'text/plain',
@@ -73,6 +74,7 @@ module TwTester
           when /\.css$/ ; :css
           when /\.js$/ ; :js
           when /\.txt$/ ; :txt
+          when /\.xml$/ ; :xml
           else :html
           end
       content_type CONTENT_TYPES[request_uri], :charset => 'utf-8'
@@ -132,7 +134,6 @@ module TwTester
     get '/1/statuses/home_timeline.json' do
       protected!
       since = (params['since_id'] || '0').to_i
-      since
       session[:user], session[:pass] = @auth.credentials if @auth
       $timeline.select{|t|t['id'] > since}.reverse.to_json
     end
@@ -166,6 +167,18 @@ module TwTester
       response.to_json
     end
 
+    get '/1/account/verify_credentials.xml' do
+      protected!
+      session[:user], session[:pass] = @auth.credentials if @auth
+      response = {
+        'user' => {
+          'name' => session[:user],
+          'screen_name' => session[:user],
+        }
+      }
+      haml :verify_credentials, :locals => { :response => response }
+    end
+
     get '/1/account/rate_limit_status.json' do
       protected!
       session[:user], session[:pass] = @auth.credentials if @auth
@@ -179,6 +192,35 @@ module TwTester
         'previous_cursor' => 0,
       }
       response.to_json
+    end
+
+    get '/1/account/rate_limit_status.xml' do
+      protected!
+      haml :rate_limit_status
+    end
+
+    get '/1/followers/ids.xml' do
+      haml :ids
+    end
+
+    get '/1/statuses/home_timeline.xml' do
+      protected!
+      since = (params['since_id'] || '0').to_i
+      session[:user], session[:pass] = @auth.credentials if @auth
+      tweets = $timeline.select{|t|t['id'] > since}.reverse
+      haml :timeline, :locals => { :tweets => tweets }
+    end
+
+    get '/1/statuses/mentions.xml' do
+      haml :mentions
+    end
+
+    get '/1/direct_messages.xml' do
+      haml :direct_messages
+    end
+
+    get '/1/favorites.xml' do
+      haml :favorites
     end
   end
 end

@@ -99,6 +99,7 @@ module TwTester
     end
 
     get '/:screen_name/status/:tid' do |screen_name, tid|
+      raise unless tid.to_i.to_s == tid # check
       tweet = File.open("tweets/#{tid}.bin", 'rb') do |fd|
         Marshal.load(fd.read)
       end
@@ -142,6 +143,14 @@ module TwTester
       text = text.split(//u)[0, 140].join
       response = post_tweet(text, session)
       response.to_json
+    end
+
+    get '/1/statuses/show/:tid.json' do |tid|
+      raise unless tid.to_i.to_s == tid # check
+      tweet = File.open("tweets/#{tid}.bin", 'rb') do |fd|
+        Marshal.load(fd.read)
+      end
+      tweet.to_json
     end
 
     get '/1/account/verify_credentials.json' do

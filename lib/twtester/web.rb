@@ -33,7 +33,7 @@ module TwTester
         end
       end
 
-      def post_tweet(text, account)
+      def post_tweet(text, account, reply_to = nil)
         digest = Digest::MD5.hexdigest(account[:pass])
         now = Time.now
         tid = now.to_i * 1000 + now.usec / 1000
@@ -47,6 +47,7 @@ module TwTester
             'profile_image_url' => "http://www.gravatar.com/avatar/#{digest}?s=48&default=identicon",
           },
         }
+        tweet['in_reply_to_status_id'] = reply_to.to_i if reply_to
         $timeline << tweet
         $timeline.shift if $timeline.size > 20
         File.open("tweets/#{tid}.bin", 'wb') do |fd|
@@ -141,7 +142,7 @@ module TwTester
       session[:user], session[:pass] = @auth.credentials if @auth
       text = params['status']
       text = text.split(//u)[0, 140].join
-      response = post_tweet(text, session)
+      response = post_tweet(text, session, params['in_reply_to_status_id'])
       response.to_json
     end
 

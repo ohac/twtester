@@ -23,12 +23,12 @@ end
 
 class MyProxyServer < WEBrick::HTTPProxyServer
   def service(req, res)
-    if req.host == 'twitter.com'
+    if /twitter.com\z/ === req.host
       req.host = 'localhost'
       req.port = 4567
-      hostport = 'localhost:4567'
-      req.unparsed_uri = req.unparsed_uri.sub(/twitter.com/, hostport)
-      req.request_line = req.request_line.sub(/twitter.com/, hostport)
+      hostport = "#{req.host}:#{req.port}"
+      req.unparsed_uri = req.unparsed_uri.sub(/(api.)*twitter.com/, hostport)
+      req.request_line = req.request_line.sub(/(api.)*twitter.com/, hostport)
       req.request_uri = URI.parse(req.unparsed_uri)
     end
     super(req, res)

@@ -2,6 +2,7 @@ require 'sinatra/base'
 require 'json'
 require 'haml'
 require 'fileutils'
+require 'time'
 
 $timeline = []
 if File.exist?('timeline.bin')
@@ -77,6 +78,24 @@ module TwTester
           fd.write(Marshal.dump($timeline))
         end
         tweet
+      end
+
+      def timestr(time)
+        t = Time.parse(time)
+        diff = Time.now.to_i - t.to_i
+        if diff < 20
+          'less than 20 seconds ago'
+        elsif diff < 30
+          'half a minute ago'
+        elsif diff < 60
+          'less than a minute ago'
+        elsif diff < 3600
+          "#{diff / 60} minute(s) ago"
+        elsif diff < 24 * 3600
+          "#{diff / 3600} hour(s) ago"
+        else
+          t.strftime('%Y-%m-%d %H:%M')
+        end
       end
     end
 

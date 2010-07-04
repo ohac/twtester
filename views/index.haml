@@ -23,7 +23,7 @@
           = screen_name
           = h tweet['text']
           %br
-          %a{:href => "/#{screen_name}/status/#{tweet['id']}"}= tweet['created_at']
+          %a{:href => "/#{screen_name}/status/#{tweet['id']}"}= timestr tweet['created_at']
           %br
       #sidebar
         %img{:src => "/feedicon.png"}

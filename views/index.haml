@@ -17,7 +17,8 @@
             %br
             %input#salt{:type => :checkbox, :name => :salt}
               %label{:for => :salt} Shapeshift
-          %input#replyto{:type => :hidden, :name => :in_reply_to_status_id}
+          %input#replytoid{:type => :hidden, :name => :in_reply_to_status_id}
+          %input#replyto{:type => :hidden, :name => :in_reply_to}
           %br
           %input{:type => 'submit', :value => 'Tweet'}
         - timeline.reverse.each do |tweet|
@@ -30,8 +31,9 @@
           %br
           %a{:href => "/#{screen_name}/status/#{tid}"}= timestr tweet['created_at']
           - if rid = tweet['in_reply_to_status_id']
-            %a{:href => "/someone/status/#{rid}"} in reply to someone
-          %a.reply{:href => "?status=@#{screen_name}&in_reply_to_status_id=#{tid}"} Reply
+            - ruser = tweet['in_reply_to']
+            %a{:href => "/#{ruser}/status/#{rid}"}== in reply to #{ruser}
+          %a.reply{:href => "?status=@#{screen_name}&in_reply_to_status_id=#{tid}&in_reply_to=#{screen_name}"} Reply
           %br
       #sidebar
         %img{:src => "/feedicon.png"}

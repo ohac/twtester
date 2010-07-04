@@ -53,7 +53,7 @@ module TwTester
         partial(:haml, template, options = {})
       end
 
-      def post_tweet(text, account, reply_to = nil)
+      def post_tweet(text, account, reply_to_id = nil, reply_to = nil)
         return if text.size == 0
         digest = Digest::MD5.hexdigest(account[:pass])
         now = Time.now
@@ -68,8 +68,10 @@ module TwTester
             'profile_image_url' => "http://www.gravatar.com/avatar/#{digest}?s=48&default=identicon",
           },
         }
-        if reply_to and !reply_to.empty?
-          tweet['in_reply_to_status_id'] = reply_to.to_i
+        if reply_to_id and !reply_to_id.empty?
+          tweet['in_reply_to_status_id'] = reply_to_id.to_i
+          raise unless screen_name?(reply_to)
+          tweet['in_reply_to'] = reply_to
         end
         $timeline << tweet
         $timeline.shift if $timeline.size > 20
@@ -168,7 +170,8 @@ module TwTester
       end
       text = params['status']
       text = text.split(//u)[0, 140].join
-      post_tweet(text, account, params['in_reply_to_status_id'])
+      post_tweet(text, account, params['in_reply_to_status_id'],
+          params['in_reply_to'])
       redirect '/'
     end
 
@@ -193,7 +196,8 @@ module TwTester
       session[:user], session[:pass] = @auth.credentials if @auth
       text = params['status']
       text = text.split(//u)[0, 140].join
-      response = post_tweet(text, session, params['in_reply_to_status_id'])
+      response = post_tweet(text, session, params['in_reply_to_status_id'],
+          params['in_reply_to'])
       response.to_json
     end
 

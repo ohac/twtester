@@ -2,10 +2,12 @@ $(function(){
   $('.reply').click(function(){
     var href = $(this).attr('href');
     var str = href.split('&');
-    var uid = str[0].split('=')[1];
+    var st = str[0].split('=')[1];
     var tid = str[1].split('=')[1];
-    $('#tweet').val(uid + ' ');
-    $('#replyto').val(tid);
+    var uid = str[2].split('=')[1];
+    $('#tweet').val(st + ' ');
+    $('#replytoid').val(tid);
+    $('#replyto').val(uid);
     $('#tweet').focus();
     return false;
   });

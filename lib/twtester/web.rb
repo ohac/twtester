@@ -132,7 +132,9 @@ module TwTester
     post '/update' do
       account = session
       unless account[:user]
-        pass = request.env['REMOTE_ADDR']
+        pass = ['REMOTE_ADDR', 'HTTP_USER_AGENT', 'HTTP_ACCEPT',
+          'HTTP_ACCEPT_ENCODING', 'HTTP_ACCEPT_LANGUAGE',
+          'HTTP_ACCEPT_CHARSET'].map{|k|request.env[k]}.join
         digest = Digest::MD5.hexdigest(pass)
         account = { :user => "anonym_#{digest[0,4]}", :pass => pass }
       end

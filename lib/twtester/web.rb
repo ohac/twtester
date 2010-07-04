@@ -49,6 +49,7 @@ module TwTester
       end
 
       def post_tweet(text, account, reply_to = nil)
+        return if text.size == 0
         digest = Digest::MD5.hexdigest(account[:pass])
         now = Time.now
         tid = now.to_i * 1000 + now.usec / 1000

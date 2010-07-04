@@ -3,9 +3,8 @@
     %title twtester
     %link{:rel => "alternate", :href => "/rss.xml", :title => "Recent Tweets", :type => "application/rss+xml"}
   %body
-    - if user
-      %a{:href => "/logout"} Logout
-    - else
+    = partial_haml :header
+    - unless user
       %form{:method => 'post', :action => '/login'}
         Username:
         %input{:type => 'text', :name => 'user'}

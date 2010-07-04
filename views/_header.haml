@@ -1,0 +1,12 @@
+TwTester
+[
+- user = session[:user]
+- if user
+  = user
+  |
+%a{:href => '/'} Home
+- if user
+  |
+  %a{:href => '/logout'} Logout
+]
+%hr

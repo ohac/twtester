@@ -2,6 +2,7 @@
   %head
     %title== #{tid} - twtester
   %body
+    = partial_haml :header
     - user = tweet['user']
     - screen_name = h(user['screen_name'])
     %img{:src => user['profile_image_url']}
@@ -9,3 +10,4 @@
     = h tweet['text']
     %br
     %a{:href => "/#{screen_name}/status/#{tweet['id']}"}= tweet['created_at']
+    = partial_haml :footer

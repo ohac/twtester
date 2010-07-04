@@ -10,4 +10,6 @@
     = h tweet['text']
     %br
     %a{:href => "/#{screen_name}/status/#{tweet['id']}"}= timestr tweet['created_at']
+    - if rid = tweet['in_reply_to_status_id']
+      %a{:href => "/someone/status/#{rid}"} in reply to someone
     = partial_haml :footer

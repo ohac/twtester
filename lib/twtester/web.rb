@@ -68,7 +68,9 @@ module TwTester
             'profile_image_url' => "http://www.gravatar.com/avatar/#{digest}?s=48&default=identicon",
           },
         }
-        tweet['in_reply_to_status_id'] = reply_to.to_i if reply_to
+        if reply_to and !reply_to.empty?
+          tweet['in_reply_to_status_id'] = reply_to.to_i
+        end
         $timeline << tweet
         $timeline.shift if $timeline.size > 20
         File.open("tweets/#{tid}.bin", 'wb') do |fd|
@@ -166,7 +168,7 @@ module TwTester
       end
       text = params['status']
       text = text.split(//u)[0, 140].join
-      post_tweet(text, account)
+      post_tweet(text, account, params['in_reply_to_status_id'])
       redirect '/'
     end
 

@@ -12,7 +12,11 @@ end
 FileUtils.mkdir_p('tweets')
 
 module TwTester
+
   class Web < Sinatra::Base
+    TWTESTER_HOME = File.dirname(__FILE__) + '/../../'
+    set :public, TWTESTER_HOME + 'public'
+    set :views, TWTESTER_HOME + 'views'
     enable :sessions
 
     helpers do

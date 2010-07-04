@@ -1,14 +1,16 @@
-TwTester
-[
-- user = session[:user]
-- if user
-  = user
+#header
+  TwTester
+  [
+  - user = session[:user]
+  - if user
+    = user
+    |
+  %a{:href => '/'} Home
   |
-%a{:href => '/'} Home
-|
-- if user
-  %a{:href => '/logout'} Sign out
-- else
-  %a{:href => '/login'} Sign in
-]
-%hr
+  - if user
+    %a{:href => '/logout'} Sign out
+  - else
+    %a{:href => '/login'} Sign in
+  ]
+  %br
+  %br

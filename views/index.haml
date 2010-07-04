@@ -2,24 +2,30 @@
   %head
     %title twtester
     %link{:rel => "alternate", :href => "/rss.xml", :title => "Recent Tweets", :type => "application/rss+xml"}
+    %link{:href => "/style.css", :rel => "stylesheet", :type => "text/css",
+        :media => "screen"}
   %body
     = partial_haml :header
-    %a{:href => "/rss.xml", :rel => "alternate", :type => "application/rss+xml"} RSS feed
-    %form{:method => 'post', :action => '/update'}
-      %textarea{:name => 'status', :rows => 2, :cols => 40}
-      - unless user
-        %br
-        %input#salt{:type => :checkbox, :name => :salt}
-          %label{:for => :salt} Shapeshift
-      %br
-      %input{:type => 'submit', :value => 'Tweet'}
-    - timeline.reverse.each do |tweet|
-      - user = tweet['user']
-      - screen_name = h(user['screen_name'])
-      %img{:src => user['profile_image_url']}
-      = screen_name
-      = h tweet['text']
-      %br
-      %a{:href => "/#{screen_name}/status/#{tweet['id']}"}= tweet['created_at']
-      %br
-    = partial_haml :footer
+    #container
+      #main
+        %form{:method => 'post', :action => '/update'}
+          %textarea{:name => 'status', :rows => 2, :cols => 40}
+          - unless user
+            %br
+            %input#salt{:type => :checkbox, :name => :salt}
+              %label{:for => :salt} Shapeshift
+          %br
+          %input{:type => 'submit', :value => 'Tweet'}
+        - timeline.reverse.each do |tweet|
+          - user = tweet['user']
+          - screen_name = h(user['screen_name'])
+          %img{:src => user['profile_image_url']}
+          = screen_name
+          = h tweet['text']
+          %br
+          %a{:href => "/#{screen_name}/status/#{tweet['id']}"}= tweet['created_at']
+          %br
+      #sidebar
+        %img{:src => "/feedicon.png"}
+        %a{:href => "/rss.xml", :rel => "alternate", :type => "application/rss+xml"} RSS feed
+      = partial_haml :footer

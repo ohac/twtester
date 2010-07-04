@@ -1,0 +1,19 @@
+body {
+  text-align: center;
+}
+#container {
+  text-align: left;
+}
+#main {
+  width: 600px;
+  float: left;
+}
+#sidebar {
+  width: 100px;
+  float: right;
+}
+#footer {
+  width: 100%;
+  text-align: center;
+  clear: left;
+}

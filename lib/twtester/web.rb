@@ -25,11 +25,15 @@ module TwTester
         end
       end
 
+      def screen_name?(name)
+        /\A[0-9a-zA-Z_]+\z/ === name && name.size <= 20
+      end
+
       def authorized?
         @auth ||= Rack::Auth::Basic::Request.new(request.env)
         if @auth.provided? && @auth.basic?
           cr = @auth.credentials
-          cr && /\A[0-9a-zA-Z_]+\z/ === cr[0]
+          cr && screen_name?(cr[0])
         end
       end
 
@@ -89,7 +93,7 @@ module TwTester
       user = params['user']
       pass = params['pass']
       digest = Digest::MD5.hexdigest(pass)
-      user = /\A[0-9a-zA-Z_]+\z/ === user ? user : "anonym_#{digest[0,4]}"
+      user = screen_name?(user) ? user : "anonym_#{digest[0,4]}"
       session[:user] = user
       session[:pass] = pass
       redirect '/'

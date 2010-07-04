@@ -37,6 +37,17 @@ module TwTester
         end
       end
 
+      def partial(renderer, template, options = {})
+        options = options.merge({:layout => false})
+        template = "_#{template.to_s}".to_sym
+        m = method(renderer)
+        m.call(template, options)
+      end
+
+      def partial_haml(template, options = {})
+        partial(:haml, template, options = {})
+      end
+
       def post_tweet(text, account, reply_to = nil)
         digest = Digest::MD5.hexdigest(account[:pass])
         now = Time.now

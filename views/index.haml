@@ -7,6 +7,10 @@
     %a{:href => "/rss.xml", :rel => "alternate", :type => "application/rss+xml"} RSS feed
     %form{:method => 'post', :action => '/update'}
       %textarea{:name => 'status', :rows => 2, :cols => 40}
+      - unless user
+        %br
+        %input#salt{:type => :checkbox, :name => :salt}
+          %label{:for => :salt} Shapeshift
       %br
       %input{:type => 'submit', :value => 'Tweet'}
     - timeline.reverse.each do |tweet|

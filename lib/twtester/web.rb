@@ -135,6 +135,9 @@ module TwTester
         pass = ['REMOTE_ADDR', 'HTTP_USER_AGENT', 'HTTP_ACCEPT',
           'HTTP_ACCEPT_ENCODING', 'HTTP_ACCEPT_LANGUAGE',
           'HTTP_ACCEPT_CHARSET'].map{|k|request.env[k]}.join
+        session[:salt] = rand.to_s if params['salt']
+        salt = session[:salt] || ''
+        pass = salt + pass
         digest = Digest::MD5.hexdigest(pass)
         account = { :user => "anonym_#{digest[0,4]}", :pass => pass }
       end

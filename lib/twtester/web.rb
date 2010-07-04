@@ -191,7 +191,7 @@ module TwTester
       $timeline.select{|t|t['id'] > since}.reverse.to_json
     end
 
-    post '/1/statuses/update.json' do
+    post '/1/statuses/update.:ext' do |ext|
       protected!
       session[:user], session[:pass] = @auth.credentials if @auth
       text = params['status']
@@ -207,6 +207,11 @@ module TwTester
         Marshal.load(fd.read)
       end
       tweet.to_json
+    end
+
+    get '/1/users/show/:uid.xml' do
+      protected!
+      haml :timeline, :locals => { :tweets => [] }
     end
 
     get '/1/account/verify_credentials.json' do

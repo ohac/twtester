@@ -12,6 +12,8 @@
     #container
       #main
         %form{:method => 'post', :action => '/update'}
+          %label{:for => :tweet} What's happening?
+          %br
           %textarea#tweet{:name => 'status', :rows => 2, :cols => 40}
           - unless user
             %br

@@ -17,3 +17,17 @@ body {
   text-align: center;
   clear: left;
 }
+.screen_name {
+  color: blue;
+  font-weight: bold;
+}
+a {
+  text-decoration:none;
+}
+.twstat a {
+  color: gray;
+}
+p.box {
+  border-bottom: 1px solid #eeeeee;
+  padding-bottom: 15px;
+}

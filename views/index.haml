@@ -26,17 +26,18 @@
         - timeline.reverse.each do |tweet|
           - user = tweet['user']
           - screen_name = h(user['screen_name'])
-          %img{:src => user['profile_image_url']}
-          = screen_name
-          = h tweet['text']
-          - tid = tweet['id']
-          %br
-          %a{:href => "/#{screen_name}/status/#{tid}"}= timestr tweet['created_at']
-          - if rid = tweet['in_reply_to_status_id']
-            - ruser = tweet['in_reply_to']
-            %a{:href => "/#{ruser}/status/#{rid}"}== in reply to #{ruser}
-          %a.reply{:href => "?status=@#{screen_name}&in_reply_to_status_id=#{tid}&in_reply_to=#{screen_name}"} Reply
-          %br
+          %p.box
+            %img{:src => user['profile_image_url'], :align => :left}
+            %span.screen_name= screen_name
+            = h tweet['text']
+            - tid = tweet['id']
+            %br
+            %span.twstat
+              %a{:href => "/#{screen_name}/status/#{tid}"}= timestr tweet['created_at']
+              - if rid = tweet['in_reply_to_status_id']
+                - ruser = tweet['in_reply_to']
+                %a{:href => "/#{ruser}/status/#{rid}"}== in reply to #{ruser}
+            %a.reply{:href => "?status=@#{screen_name}&in_reply_to_status_id=#{tid}&in_reply_to=#{screen_name}"} Reply
       #sidebar
         %img{:src => "/feedicon.png"}
         %a{:href => "/rss.xml", :rel => "alternate", :type => "application/rss+xml"} RSS feed

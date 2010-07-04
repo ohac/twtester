@@ -1,0 +1,14 @@
+%html
+  %head
+    %title Sign in - twtester
+  %body
+    = partial_haml :header
+    %form{:method => 'post', :action => '/login'}
+      Username:
+      %input{:type => 'text', :name => 'user'}
+      %br
+      Password:
+      %input{:type => 'password', :name => 'pass'}
+      %br
+      %input{:type => 'submit', :value => 'Sign in'}
+    = partial_haml :footer

@@ -101,6 +101,10 @@ module TwTester
       haml :index, :locals => { :timeline => $timeline, :user => session[:user] }
     end
 
+    get '/login' do
+      haml :login
+    end
+
     post '/login' do
       user = params['user']
       pass = params['pass']

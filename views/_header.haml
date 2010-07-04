@@ -5,8 +5,10 @@ TwTester
   = user
   |
 %a{:href => '/'} Home
+|
 - if user
-  |
   %a{:href => '/logout'} Sign out
+- else
+  %a{:href => '/login'} Sign in
 ]
 %hr

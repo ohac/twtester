@@ -4,16 +4,6 @@
     %link{:rel => "alternate", :href => "/rss.xml", :title => "Recent Tweets", :type => "application/rss+xml"}
   %body
     = partial_haml :header
-    - unless user
-      %form{:method => 'post', :action => '/login'}
-        Username:
-        %input{:type => 'text', :name => 'user'}
-        %br
-        Password:
-        %input{:type => 'password', :name => 'pass'}
-        %br
-        %input{:type => 'submit', :value => 'Sign in'}
-    %br
     %a{:href => "/rss.xml", :rel => "alternate", :type => "application/rss+xml"} RSS feed
     %form{:method => 'post', :action => '/update'}
       %textarea{:name => 'status', :rows => 2, :cols => 40}

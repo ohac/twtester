@@ -70,6 +70,9 @@ module TwTester
         }
         if reply_to_id and !reply_to_id.empty?
           tweet['in_reply_to_status_id'] = reply_to_id.to_i
+          unless reply_to
+            reply_to = load_tweet(reply_to_id.to_i)['user']['screen_name']
+          end
           raise unless screen_name?(reply_to)
           tweet['in_reply_to'] = reply_to
         end
@@ -99,6 +102,13 @@ module TwTester
           "#{diff / 3600} hour(s) ago"
         else
           t.strftime('%Y-%m-%d %H:%M')
+        end
+      end
+
+      def load_tweet(tid)
+        raise unless tid.to_i.to_s == tid # check
+        File.open("tweets/#{tid}.bin", 'rb') do |fd|
+          Marshal.load(fd.read)
         end
       end
     end
@@ -149,10 +159,7 @@ module TwTester
     end
 
     get '/:screen_name/status/:tid' do |screen_name, tid|
-      raise unless tid.to_i.to_s == tid # check
-      tweet = File.open("tweets/#{tid}.bin", 'rb') do |fd|
-        Marshal.load(fd.read)
-      end
+      tweet = load_tweet(tid)
       haml :tweet, :locals => { :tid => tid, :tweet => tweet }
     end
 
@@ -202,10 +209,7 @@ module TwTester
     end
 
     get '/1/statuses/show/:tid.json' do |tid|
-      raise unless tid.to_i.to_s == tid # check
-      tweet = File.open("tweets/#{tid}.bin", 'rb') do |fd|
-        Marshal.load(fd.read)
-      end
+      tweet = load_tweet(tid)
       tweet.to_json
     end
 

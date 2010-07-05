@@ -71,7 +71,7 @@ module TwTester
         if reply_to_id and !reply_to_id.empty?
           tweet['in_reply_to_status_id'] = reply_to_id.to_i
           unless reply_to
-            reply_to = load_tweet(reply_to_id.to_i)['user']['screen_name']
+            reply_to = load_tweet(reply_to_id)['user']['screen_name']
           end
           raise unless screen_name?(reply_to)
           tweet['in_reply_to'] = reply_to

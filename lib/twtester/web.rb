@@ -135,7 +135,9 @@ module TwTester
     end
 
     get '/' do
-      haml :index, :locals => { :timeline => $timeline, :user => session[:user] }
+      since = (params['since_id'] || '0').to_i
+      tl = $timeline.select{|t|t['id'] > since}
+      haml :index, :locals => { :timeline => tl, :user => session[:user] }
     end
 
     get '/login' do

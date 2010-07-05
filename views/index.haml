@@ -23,6 +23,9 @@
           %input#replyto{:type => :hidden, :name => :in_reply_to}
           %br
           %input{:type => 'submit', :value => 'Tweet'}
+        #refresh
+        #since_id= timeline.empty? ? '0' : timeline.last['id']
+        #num_of_tw= timeline.size
         - timeline.reverse.each do |tweet|
           - user = tweet['user']
           - screen_name = h(user['screen_name'])

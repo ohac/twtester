@@ -17,6 +17,15 @@ body {
   text-align: center;
   clear: left;
 }
+#refresh {
+  background-color: #ddddff;
+}
+#since_id {
+  display: none;
+}
+#num_of_tw {
+  display: none;
+}
 .screen_name {
   color: blue;
   font-weight: bold;

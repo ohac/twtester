@@ -287,5 +287,24 @@ module TwTester
     get '/1/favorites.xml' do
       haml :favorites
     end
+
+    get '/search' do
+      q = params[:q]
+      since_id = params[:since_id] # TODO
+      max_id = params[:max_id] # TODO
+      since = params[:since] # TODO
+      untilt = params[:until] # TODO
+      tl = Dir.glob('tweets/*.bin').map do |fn|
+        File.open(fn, 'rb') do |fd|
+          Marshal.load(fd.read)
+        end
+      end
+      unless q.nil?
+        tl = tl.select do |tw|
+          tw['text'].index(q)
+        end
+      end
+      haml :index, :locals => { :timeline => tl, :user => session[:user] }
+    end
   end
 end

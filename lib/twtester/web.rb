@@ -304,7 +304,8 @@ module TwTester
           tw['text'].index(q)
         end
       end
-      haml :index, :locals => { :timeline => tl, :user => session[:user] }
+      haml :index, :locals => { :timeline => tl, :user => session[:user],
+          :stopjs => true }
     end
   end
 end

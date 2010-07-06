@@ -43,6 +43,9 @@
                 %a{:href => "/#{ruser}/status/#{rid}"}== in reply to #{ruser}
             %a.reply{:href => "?status=@#{screen_name}&in_reply_to_status_id=#{tid}&in_reply_to=#{screen_name}"} Reply
       #sidebar
+        %form{:method => 'get', :action => '/search'}
+          %input#search{:type => :text, :name => :q}
+          %input{:type => :submit, :value => 'Search'}
         %img{:src => "/feedicon.png"}
         %a{:href => "/rss.xml", :rel => "alternate", :type => "application/rss+xml"} RSS feed
       = partial_haml :footer

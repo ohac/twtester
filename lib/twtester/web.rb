@@ -136,6 +136,13 @@ module TwTester
           end
         end
       end
+
+      def tweet_to_html(s)
+        s = h(s)
+        s.gsub!(/@([0-9a-zA-Z_]+)/, '<a href="/\1">@\1</a>')
+        s.gsub!(/#([0-9a-zA-Z_]+)/, '<a href="/search?q=%23\1">#\1</a>')
+        s
+      end
     end
 
     CONTENT_TYPES = {
@@ -313,33 +320,35 @@ module TwTester
       haml :favorites
     end
 
-    get '/1/search:ext?' do |ext|
-      q = params[:q]
-      since_id = params[:since_id] # TODO
-      max_id = params[:max_id] # TODO
-      since = params[:since] # TODO
-      untilt = params[:until] # TODO
-      tl = load_all_tweets
-      unless q.nil?
-        tl = tl.select do |tw|
-          tw['text'].index(q)
+    ['/search:ext?', '/1/search:ext?'].each do |path|
+      get path do |ext|
+        q = params[:q]
+        since_id = params[:since_id] # TODO
+        max_id = params[:max_id] # TODO
+        since = params[:since] # TODO
+        untilt = params[:until] # TODO
+        tl = load_all_tweets
+        unless q.nil?
+          tl = tl.select do |tw|
+            tw['text'].index(q)
+          end
         end
-      end
-      if ext.nil?
-        haml :index, :locals => { :timeline => tl, :user => session[:user],
-            :stopjs => true }
-      elsif ext == '.json'
-        tl = tl.map do |tw|
-          {
-            'text' => tw['text'],
-            'id' => tw['id'],
-            'created_at' => tw['created_at'],
-            'from_user' => tw['user']['screen_name'],
-          }
+        if ext.nil?
+          haml :index, :locals => { :timeline => tl, :user => session[:user],
+              :stopjs => true }
+        elsif ext == '.json'
+          tl = tl.map do |tw|
+            {
+              'text' => tw['text'],
+              'id' => tw['id'],
+              'created_at' => tw['created_at'],
+              'from_user' => tw['user']['screen_name'],
+            }
+          end
+          {'results' => tl}.to_json
+        else
+          raise
         end
-        {'results' => tl}.to_json
-      else
-        raise
       end
     end
 

@@ -11,8 +11,9 @@
         - screen_name = h(user['screen_name'])
         %p.box
           %img{:src => user['profile_image_url'], :align => :left}
-          %span.screen_name= screen_name
-          = h tweet['text']
+          %span.screen_name
+            %a{:href => "/#{screen_name}"}= screen_name
+          = tweet_to_html tweet['text']
           %br
           %span.twstat
             %a{:href => "/#{screen_name}/status/#{tweet['id']}"}= timestr tweet['created_at']

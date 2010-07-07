@@ -3,6 +3,7 @@ require 'json'
 require 'haml'
 require 'fileutils'
 require 'time'
+require 'yaml'
 
 $timeline = []
 if File.exist?('timeline.bin')
@@ -16,6 +17,22 @@ module TwTester
 
   class Web < Sinatra::Base
     TWTESTER_HOME = File.dirname(__FILE__) + '/../../'
+    HOME_DIR = ENV['HOME']
+    SETTING_DIR = File.join(HOME_DIR, '.twtester')
+    SETTING_FILE = File.join(SETTING_DIR, 'settings.yaml')
+    unless File.exist?(SETTING_DIR)
+      FileUtils.mkdir SETTING_DIR
+    end
+    unless File.exist?(SETTING_FILE)
+      open(SETTING_FILE, 'w') do |fd|
+        setting = {
+          'baseurl' => 'http://localhost:4567',
+        }
+        fd.puts(YAML.dump(setting))
+      end
+    end
+    SETTING = YAML.load(File.read(SETTING_FILE))
+
     set :public, TWTESTER_HOME + 'public'
     set :views, TWTESTER_HOME + 'views'
     enable :sessions
@@ -185,8 +202,8 @@ module TwTester
     end
 
     get '/rss.xml' do
-      haml :rss, :locals => {  :timeline => $timeline,
-          :baseurl => 'http://localhost:4567' }
+      haml :rss, :locals => { :timeline => $timeline,
+          :baseurl => SETTING['baseurl'] }
     end
 
     get '/1/statuses/public_timeline.json' do

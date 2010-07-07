@@ -349,5 +349,16 @@ module TwTester
       haml :index, :locals => { :timeline => tl, :user => session[:user],
           :stopjs => true }
     end
+
+    get '/1/statuses/user_timeline/:uid.:ext' do |uid, ext|
+      tl = load_all_tweets.select do |tw|
+        tw['user']['screen_name'] == uid
+      end
+      if ext == 'json'
+        tl.to_json
+      else
+        raise
+      end
+    end
   end
 end

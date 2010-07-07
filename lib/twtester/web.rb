@@ -334,6 +334,7 @@ module TwTester
             'text' => tw['text'],
             'id' => tw['id'],
             'created_at' => tw['created_at'],
+            'from_user' => tw['user']['screen_name'],
           }
         end
         {'results' => tl}.to_json

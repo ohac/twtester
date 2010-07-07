@@ -128,6 +128,14 @@ module TwTester
           Marshal.load(fd.read)
         end
       end
+
+      def load_all_tweets
+        Dir.glob('tweets/*.bin').map do |fn|
+          File.open(fn, 'rb') do |fd|
+            Marshal.load(fd.read)
+          end
+        end
+      end
     end
 
     CONTENT_TYPES = {
@@ -311,15 +319,19 @@ module TwTester
       max_id = params[:max_id] # TODO
       since = params[:since] # TODO
       untilt = params[:until] # TODO
-      tl = Dir.glob('tweets/*.bin').map do |fn|
-        File.open(fn, 'rb') do |fd|
-          Marshal.load(fd.read)
-        end
-      end
+      tl = load_all_tweets
       unless q.nil?
         tl = tl.select do |tw|
           tw['text'].index(q)
         end
+      end
+      haml :index, :locals => { :timeline => tl, :user => session[:user],
+          :stopjs => true }
+    end
+
+    get '/:screen_name' do |screen_name|
+      tl = load_all_tweets.select do |tw|
+        tw['user']['screen_name'] == screen_name
       end
       haml :index, :locals => { :timeline => tl, :user => session[:user],
           :stopjs => true }

@@ -313,7 +313,7 @@ module TwTester
       haml :favorites
     end
 
-    get '/search:ext?' do |ext|
+    get '/1/search:ext?' do |ext|
       q = params[:q]
       since_id = params[:since_id] # TODO
       max_id = params[:max_id] # TODO

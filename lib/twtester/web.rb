@@ -313,7 +313,7 @@ module TwTester
       haml :favorites
     end
 
-    get '/search' do
+    get '/search:ext?' do |ext|
       q = params[:q]
       since_id = params[:since_id] # TODO
       max_id = params[:max_id] # TODO
@@ -325,8 +325,21 @@ module TwTester
           tw['text'].index(q)
         end
       end
-      haml :index, :locals => { :timeline => tl, :user => session[:user],
-          :stopjs => true }
+      if ext.nil?
+        haml :index, :locals => { :timeline => tl, :user => session[:user],
+            :stopjs => true }
+      elsif ext == '.json'
+        tl = tl.map do |tw|
+          {
+            'text' => tw['text'],
+            'id' => tw['id'],
+            'created_at' => tw['created_at'],
+          }
+        end
+        {'results' => tl}.to_json
+      else
+        raise
+      end
     end
 
     get '/:screen_name' do |screen_name|

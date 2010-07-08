@@ -249,7 +249,7 @@ module TwTester
       protected!
       session[:user], session[:pass] = @auth.credentials if @auth
       tweet = load_tweet(tid)
-      text = 'RT ' + tweet['text']
+      text = "RT @#{text['user']['screen_name']}: #{tweet['text']}"
       text = text.split(//u)[0, 140].join
       response = post_tweet(text, session, tid, tweet['user']['screen_name'])
       response.to_json

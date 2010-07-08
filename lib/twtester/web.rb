@@ -140,9 +140,9 @@ module TwTester
       def tweet_to_html(s)
         s = h(s)
         s.gsub!(/\A@([0-9a-zA-Z_]+)/, '<a href="/\1">@\1</a>')
-        s.gsub!(/ @([0-9a-zA-Z_]+)/, '<a href="/\1">@\1</a>')
+        s.gsub!(/ @([0-9a-zA-Z_]+)/, ' <a href="/\1">@\1</a>')
         s.gsub!(/\A#([0-9a-zA-Z_]+)/, '<a href="/search?q=%23\1">#\1</a>')
-        s.gsub!(/ #([0-9a-zA-Z_]+)/, '<a href="/search?q=%23\1">#\1</a>')
+        s.gsub!(/ #([0-9a-zA-Z_]+)/, ' <a href="/search?q=%23\1">#\1</a>')
         s.gsub!(/(http:\/\/[^ ]+)/, '<a href="\1">\1</a>')
         s
       end

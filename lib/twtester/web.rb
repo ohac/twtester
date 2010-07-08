@@ -245,6 +245,16 @@ module TwTester
       response.to_json
     end
 
+    post '/1/statuses/retweet/:tid.:ext' do |tid, ext|
+      protected!
+      session[:user], session[:pass] = @auth.credentials if @auth
+      tweet = load_tweet(tid)
+      text = 'RT ' + tweet['text']
+      text = text.split(//u)[0, 140].join
+      response = post_tweet(text, session, tid, tweet['user']['screen_name'])
+      response.to_json
+    end
+
     get '/1/statuses/show/:tid.json' do |tid|
       tweet = load_tweet(tid)
       tweet.to_json

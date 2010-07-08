@@ -218,10 +218,8 @@ module TwTester
       protected!
       session[:user], session[:pass] = @auth.credentials if @auth
       response = {
-        'user' => {
-          'name' => session[:user],
-          'screen_name' => session[:user],
-        }
+        'name' => session[:user],
+        'screen_name' => session[:user],
       }
       response.to_json
     end
@@ -230,10 +228,8 @@ module TwTester
       protected!
       session[:user], session[:pass] = @auth.credentials if @auth
       response = {
-        'user' => {
-          'name' => session[:user],
-          'screen_name' => session[:user],
-        }
+        'name' => session[:user],
+        'screen_name' => session[:user],
       }
       haml :verify_credentials, :locals => { :response => response }
     end

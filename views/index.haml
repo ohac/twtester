@@ -6,7 +6,8 @@
         :media => "screen"}
     - jq = "http://ajax.googleapis.com/ajax/libs/jquery/1.3.1/jquery.min.js"
     %script{:type => "text/javascript", :src => jq}
-    %script{:type => "text/javascript", :src => "/twtester.js"}
+    - unless (stopjs rescue false)
+      %script{:type => "text/javascript", :src => "/twtester.js"}
   %body
     = partial_haml :header
     #container
@@ -23,13 +24,17 @@
           %input#replyto{:type => :hidden, :name => :in_reply_to}
           %br
           %input{:type => 'submit', :value => 'Tweet'}
+        #refresh
+        #since_id= timeline.empty? ? '0' : timeline.last['id']
+        #num_of_tw= timeline.size
         - timeline.reverse.each do |tweet|
           - user = tweet['user']
           - screen_name = h(user['screen_name'])
           %p.box
             %img{:src => user['profile_image_url'], :align => :left}
-            %span.screen_name= screen_name
-            = h tweet['text']
+            %span.screen_name
+              %a{:href => "/#{screen_name}"}= screen_name
+            = tweet_to_html tweet['text']
             - tid = tweet['id']
             %br
             %span.twstat
@@ -39,6 +44,9 @@
                 %a{:href => "/#{ruser}/status/#{rid}"}== in reply to #{ruser}
             %a.reply{:href => "?status=@#{screen_name}&in_reply_to_status_id=#{tid}&in_reply_to=#{screen_name}"} Reply
       #sidebar
+        %form{:method => 'get', :action => '/search'}
+          %input#search{:type => :text, :name => :q}
+          %input{:type => :submit, :value => 'Search'}
         %img{:src => "/feedicon.png"}
         %a{:href => "/rss.xml", :rel => "alternate", :type => "application/rss+xml"} RSS feed
       = partial_haml :footer

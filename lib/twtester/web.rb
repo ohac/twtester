@@ -3,6 +3,7 @@ require 'json'
 require 'haml'
 require 'fileutils'
 require 'time'
+require 'yaml'
 
 $timeline = []
 if File.exist?('timeline.bin')
@@ -16,6 +17,22 @@ module TwTester
 
   class Web < Sinatra::Base
     TWTESTER_HOME = File.dirname(__FILE__) + '/../../'
+    HOME_DIR = ENV['HOME']
+    SETTING_DIR = File.join(HOME_DIR, '.twtester')
+    SETTING_FILE = File.join(SETTING_DIR, 'settings.yaml')
+    unless File.exist?(SETTING_DIR)
+      FileUtils.mkdir SETTING_DIR
+    end
+    unless File.exist?(SETTING_FILE)
+      open(SETTING_FILE, 'w') do |fd|
+        setting = {
+          'baseurl' => 'http://localhost:4567',
+        }
+        fd.puts(YAML.dump(setting))
+      end
+    end
+    SETTING = YAML.load(File.read(SETTING_FILE))
+
     set :public, TWTESTER_HOME + 'public'
     set :views, TWTESTER_HOME + 'views'
     enable :sessions
@@ -70,6 +87,9 @@ module TwTester
         }
         if reply_to_id and !reply_to_id.empty?
           tweet['in_reply_to_status_id'] = reply_to_id.to_i
+          unless reply_to
+            reply_to = load_tweet(reply_to_id)['user']['screen_name']
+          end
           raise unless screen_name?(reply_to)
           tweet['in_reply_to'] = reply_to
         end
@@ -101,6 +121,31 @@ module TwTester
           t.strftime('%Y-%m-%d %H:%M')
         end
       end
+
+      def load_tweet(tid)
+        raise unless tid.to_i.to_s == tid # check
+        File.open("tweets/#{tid}.bin", 'rb') do |fd|
+          Marshal.load(fd.read)
+        end
+      end
+
+      def load_all_tweets
+        Dir.glob('tweets/*.bin').map do |fn|
+          File.open(fn, 'rb') do |fd|
+            Marshal.load(fd.read)
+          end
+        end
+      end
+
+      def tweet_to_html(s)
+        s = h(s)
+        s.gsub!(/\A@([0-9a-zA-Z_]+)/, '<a href="/\1" rel="nofollow">@\1</a>')
+        s.gsub!(/ @([0-9a-zA-Z_]+)/, ' <a href="/\1" rel="nofollow">@\1</a>')
+        s.gsub!(/\A#([0-9a-zA-Z_]+)/, '<a href="/search?q=%23\1" rel="nofollow">#\1</a>')
+        s.gsub!(/ #([0-9a-zA-Z_]+)/, ' <a href="/search?q=%23\1" rel="nofollow">#\1</a>')
+        s.gsub!(/(http:\/\/[^ ]+)/, '<a href="\1">\1</a>')
+        s
+      end
     end
 
     CONTENT_TYPES = {
@@ -125,7 +170,9 @@ module TwTester
     end
 
     get '/' do
-      haml :index, :locals => { :timeline => $timeline, :user => session[:user] }
+      since = (params['since_id'] || '0').to_i
+      tl = $timeline.select{|t|t['id'] > since}
+      haml :index, :locals => { :timeline => tl, :user => session[:user] }
     end
 
     get '/login' do
@@ -149,10 +196,7 @@ module TwTester
     end
 
     get '/:screen_name/status/:tid' do |screen_name, tid|
-      raise unless tid.to_i.to_s == tid # check
-      tweet = File.open("tweets/#{tid}.bin", 'rb') do |fd|
-        Marshal.load(fd.read)
-      end
+      tweet = load_tweet(tid)
       haml :tweet, :locals => { :tid => tid, :tweet => tweet }
     end
 
@@ -176,8 +220,8 @@ module TwTester
     end
 
     get '/rss.xml' do
-      haml :rss, :locals => {  :timeline => $timeline,
-          :baseurl => 'http://localhost:4567' }
+      haml :rss, :locals => { :timeline => $timeline,
+          :baseurl => SETTING['baseurl'] }
     end
 
     get '/1/statuses/public_timeline.json' do
@@ -201,11 +245,18 @@ module TwTester
       response.to_json
     end
 
+    post '/1/statuses/retweet/:tid.:ext' do |tid, ext|
+      protected!
+      session[:user], session[:pass] = @auth.credentials if @auth
+      tweet = load_tweet(tid)
+      text = 'RT ' + tweet['text']
+      text = text.split(//u)[0, 140].join
+      response = post_tweet(text, session, tid, tweet['user']['screen_name'])
+      response.to_json
+    end
+
     get '/1/statuses/show/:tid.json' do |tid|
-      raise unless tid.to_i.to_s == tid # check
-      tweet = File.open("tweets/#{tid}.bin", 'rb') do |fd|
-        Marshal.load(fd.read)
-      end
+      tweet = load_tweet(tid)
       tweet.to_json
     end
 
@@ -276,6 +327,57 @@ module TwTester
 
     get '/1/favorites.xml' do
       haml :favorites
+    end
+
+    ['/search:ext?', '/1/search:ext?'].each do |path|
+      get path do |ext|
+        q = params[:q]
+        since_id = params[:since_id] # TODO
+        max_id = params[:max_id] # TODO
+        since = params[:since] # TODO
+        untilt = params[:until] # TODO
+        tl = load_all_tweets
+        unless q.nil?
+          tl = tl.select do |tw|
+            tw['text'].index(q)
+          end
+        end
+        if ext.nil?
+          haml :index, :locals => { :timeline => tl, :user => session[:user],
+              :stopjs => true }
+        elsif ext == '.json'
+          tl = tl.map do |tw|
+            {
+              'text' => tw['text'],
+              'id' => tw['id'],
+              'created_at' => tw['created_at'],
+              'from_user' => tw['user']['screen_name'],
+            }
+          end
+          {'results' => tl}.to_json
+        else
+          raise
+        end
+      end
+    end
+
+    get '/:screen_name' do |screen_name|
+      tl = load_all_tweets.select do |tw|
+        tw['user']['screen_name'] == screen_name
+      end
+      haml :index, :locals => { :timeline => tl, :user => session[:user],
+          :stopjs => true }
+    end
+
+    get '/1/statuses/user_timeline/:uid.:ext' do |uid, ext|
+      tl = load_all_tweets.select do |tw|
+        tw['user']['screen_name'] == uid
+      end
+      if ext == 'json'
+        tl.to_json
+      else
+        raise
+      end
     end
   end
 end

@@ -130,7 +130,7 @@ module TwTester
       end
 
       def load_all_tweets
-        Dir.glob('tweets/*.bin').map do |fn|
+        Dir.glob('tweets/*.bin').sort.map do |fn|
           File.open(fn, 'rb') do |fd|
             Marshal.load(fd.read)
           end

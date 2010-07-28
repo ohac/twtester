@@ -249,7 +249,7 @@ module TwTester
       protected!
       session[:user], session[:pass] = @auth.credentials if @auth
       tweet = load_tweet(tid)
-      text = 'RT ' + tweet['text']
+      text = "RT @#{text['user']['screen_name']}: #{tweet['text']}"
       text = text.split(//u)[0, 140].join
       response = post_tweet(text, session, tid, tweet['user']['screen_name'])
       response.to_json
@@ -269,10 +269,8 @@ module TwTester
       protected!
       session[:user], session[:pass] = @auth.credentials if @auth
       response = {
-        'user' => {
-          'name' => session[:user],
-          'screen_name' => session[:user],
-        }
+        'name' => session[:user],
+        'screen_name' => session[:user],
       }
       response.to_json
     end
@@ -281,10 +279,8 @@ module TwTester
       protected!
       session[:user], session[:pass] = @auth.credentials if @auth
       response = {
-        'user' => {
-          'name' => session[:user],
-          'screen_name' => session[:user],
-        }
+        'name' => session[:user],
+        'screen_name' => session[:user],
       }
       haml :verify_credentials, :locals => { :response => response }
     end

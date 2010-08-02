@@ -27,6 +27,7 @@ module TwTester
       open(SETTING_FILE, 'w') do |fd|
         setting = {
           'baseurl' => 'http://localhost:4567',
+          'ngwords' => ['link=http://'],
         }
         fd.puts(YAML.dump(setting))
       end
@@ -72,6 +73,7 @@ module TwTester
 
       def post_tweet(text, account, reply_to_id = nil, reply_to = nil)
         return if text.size == 0
+        return if SETTING['ngwords'].any?{|v|text.index(v)}
         digest = Digest::MD5.hexdigest(account[:pass])
         now = Time.now
         tid = now.to_i * 1000 + now.usec / 1000

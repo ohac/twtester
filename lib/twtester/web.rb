@@ -4,6 +4,7 @@ require 'haml'
 require 'fileutils'
 require 'time'
 require 'yaml'
+require 'nkf'
 
 $timeline = []
 if File.exist?('timeline.bin')
@@ -74,6 +75,8 @@ module TwTester
       def post_tweet(text, account, reply_to_id = nil, reply_to = nil)
         return if text.size == 0
         return if SETTING['ngwords'].any?{|v|text.index(v)}
+        enc = NKF.guess(text)
+        return if enc != NKF::ASCII and enc != NKF::UTF8
         digest = Digest::MD5.hexdigest(account[:pass])
         now = Time.now
         tid = now.to_i * 1000 + now.usec / 1000

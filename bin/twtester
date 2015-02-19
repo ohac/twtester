@@ -13,4 +13,4 @@ $:.unshift(File.dirname(self_file) + "/../lib")
 
 require 'twtester'
 port = TwTester::Web::SETTING['port'] || 4567
-TwTester::Web.run! :host => '0.0.0.0', :port => port
+TwTester::Web.run! :bind => '0.0.0.0', :port => port
